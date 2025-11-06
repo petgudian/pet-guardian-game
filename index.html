@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pet Guardian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Script Telegram WebApp – Telegram sẽ inject thông tin user vào đây -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #111827;
+            color: #f9fafb;
+        }
+        .card {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 16px;
+            background: #1f2937;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        h1 {
+            text-align: center;
+            margin-top: 0;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .primary {
+            background: #22c55e;
+            color: #022c22;
+            font-weight: 600;
+        }
+        .secondary {
+            background: #374151;
+            color: #e5e7eb;
+        }
+        .log {
+            margin-top: 12px;
+            font-size: 13px;
+            min-height: 32px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Pet Guardian 🐾</h1>
+    <div id="welcome"></div>
+
+    <div class="stat-row">
+        <span>Pet:</span><span id="pet-name">Border Pet</span>
+    </div>
+    <div class="stat-row">
+        <span>Level:</span><span id="level">1</span>
+    </div>
+    <div class="stat-row">
+        <span>EXP:</span><span id="exp">0 / 100</span>
+    </div>
+    <div class="stat-row">
+        <span>Gold:</span><span id="gold">0</span>
+    </div>
+    <div class="stat-row">
+        <span>Energy:</span><span id="energy">10 / 10</span>
+    </div>
+
+    <div class="btn-row">
+        <button id="feed-btn" class="secondary">🍗 Cho ăn (+10 EXP)</button>
+        <button id="train-btn" class="primary">⚔️ Train (+1 LV nếu đủ EXP)</button>
+    </div>
+
+    <div class="btn-row">
+        <button id="work-btn" class="secondary">💰 Làm nhiệm vụ (+20 Gold, -2 Energy)</button>
+        <button id="rest-btn" class="secondary">😴 Nghỉ (+3 Energy)</button>
+    </div>
+
+    <div class="log" id="log"></div>
+</div>
+
+<script>
+    // --- ĐỌC THÔNG TIN TELEGRAM USER (nếu mở từ trong Telegram WebApp) ---
+    let tg = null;
+    try {
+        tg = window.Telegram.WebApp;
+        tg.expand(); // Cho web full height
+    } catch (e) {
+        console.log("Không ở trong Telegram WebApp, chạy mode test.");
+    }
+
+    const welcomeEl = document.getElementById("welcome");
+
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        const user = tg.initDataUnsafe.user;
+        welcomeEl.innerHTML = `<p>Xin chào <b>${user.first_name}</b> (@${user.username || ''})</p>`;
+    } else {
+        welcomeEl.innerHTML = "<p>Mode test: không có thông tin Telegram user.</p>";
+    }
+
+    // --- STATE GAME ĐƠN GIẢN (LƯU LOCALSTORAGE) ---
+    const STORAGE_KEY = "pet_guardian_state";
+
+    const defaultState = {
+        petName: "Border Pet",
+        level: 1,
+        exp: 0,
+        expToLevel: 100,
+        gold: 0,
+        energy: 10,
+        maxEnergy: 10
+    };
+
+    function loadState() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {...defaultState};
+        try {
+            return JSON.parse(raw);
+        } catch (e) {
+            return {...defaultState};
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = loadState();
+
+    const petNameEl = document.getElementById("pet-name");
+    const levelEl = document.getElementById("level");
+    const expEl = document.getElementById("exp");
+    const goldEl = document.getElementById("gold");
+    const energyEl = document.getElementById("energy");
+    const logEl = document.getElementById("log");
+
+    function render() {
+        petNameEl.textContent = state.petName;
+        levelEl.textContent = state.level;
+        expEl.textContent = `${state.exp} / ${state.expToLevel}`;
+        goldEl.textContent = state.gold;
+        energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+    }
+
+    function log(msg) {
+        logEl.textContent = msg;
+    }
+
+    // --- HÀNH ĐỘNG ---
+    document.getElementById("feed-btn").onclick = () => {
+        if (state.energy <= 0) {
+            log("Pet đã hết năng lượng, hãy cho nghỉ 😴");
+            return;
+        }
+        state.exp = Math.min(state.exp + 10, state.expToLevel);
+        state.energy = Math.max(0, state.energy - 1);
+        saveState();
+        render();
+        log("Bạn đã cho pet ăn, +10 EXP, -1 energy.");
+    };
+
+    document.getElementById("train-btn").onclick = () => {
+        if (state.exp >= state.expToLevel) {
+            state.level += 1;
+            state.exp = 0;
+            state.expToLevel = Math.floor(state.expToLevel * 1.2);
+            saveState();
+            render();
+            log("Pet đã lên level! 🎉");
+        } else {
+            log("Chưa đủ EXP để lên level.");
+        }
+    };
+
+    document.getElementById("work-btn").onclick = () => {
+        if (state.energy < 2) {
+            log("Không đủ energy để làm nhiệm vụ.");
+            return;
+        }
+        state.gold += 20;
+        state.energy -= 2;
+        saveState();
+        render();
+        log("Pet hoàn thành nhiệm vụ, +20 Gold, -2 energy.");
+    };
+
+    document.getElementById("rest-btn").onclick = () => {
+        if (state.energy >= state.maxEnergy) {
+            log("Energy đã đầy.");
+            return;
+        }
+        state.energy = Math.min(state.maxEnergy, state.energy + 3);
+        saveState();
+        render();
+        log("Pet đã nghỉ ngơi, +3 energy.");
+    };
+
+    // Render lần đầu
+    render();
+</script>
+</body>
+</html>
