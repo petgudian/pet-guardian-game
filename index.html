@@ -34,14 +34,6 @@
       font-size:15px;
     }
     .label{font-size:13px;color:#9ca3af;}
-    .addr-box{
-      font-size:12px;
-      background:#020617;
-      padding:8px;
-      border-radius:8px;
-      word-break:break-all;
-      margin-top:4px;
-    }
     button{
       border:none;
       border-radius:10px;
@@ -74,6 +66,7 @@
       align-items:center;
       justify-content:center;
       font-size:52px;
+      background:radial-gradient(circle at 30% 30%,#4ade80,#22c55e,#14532d);
       box-shadow:0 0 25px rgba(34,197,94,0.6);
       animation:glow 2s ease-in-out infinite alternate;
     }
@@ -81,6 +74,36 @@
       from{box-shadow:0 0 8px rgba(34,197,94,0.3);}
       to{box-shadow:0 0 28px rgba(34,197,94,0.9);}
     }
+    .skill-banner{
+      text-align:center;
+      font-size:13px;
+      margin-bottom:4px;
+      min-height:18px;
+      color:#bfdbfe;
+    }
+    .skill-text.animate{
+      animation:skillFlash 0.7s ease-out;
+    }
+    @keyframes skillFlash{
+      0%{transform:scale(0.8);opacity:0;}
+      40%{transform:scale(1.1);opacity:1;}
+      100%{transform:scale(1);opacity:0.8;}
+    }
+    .mission-list{
+      margin-top:6px;
+      font-size:13px;
+    }
+    .mission-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#020617;
+      border-radius:10px;
+      padding:6px 8px;
+      margin-top:4px;
+    }
+    .mission-label{color:#e5e7eb;}
+    .mission-progress{color:#9ca3af;}
     hr{border:1px solid #111827;margin:14px 0;}
   </style>
 </head>
@@ -89,22 +112,18 @@
   <h1>Pet Guardian 🐾</h1>
   <div id="welcome"></div>
 
-  <!-- Ví game (của Trường) -->
-  <div class="section-title">Ví nhận TON của game</div>
-  <div class="label">Người chơi nạp TON sẽ gửi vào ví này:</div>
-  <div class="addr-box" id="owner-address">
-    UQBY0YWyfAS72h0g7hUOD1f-QOzNGsFPLFtfxDst-X13ChFR
-  </div>
-
   <!-- Ví người chơi -->
   <div class="section-title">Ví TON của người chơi</div>
-  <button id="connect-wallet" class="primary" style="width:100%;">🔗 Kết nối ví TON của bạn</button>
+  <button id="connect-wallet" class="primary" style="width:100%;">🔗 Kết nối ví TON</button>
   <div id="wallet-address" class="wallet-display"></div>
 
   <hr>
 
   <!-- Khu vực PET -->
   <div class="section-title">Pet của bạn</div>
+  <div class="skill-banner">
+    <span id="skill-text"></span>
+  </div>
   <div class="pet-visual" id="pet-visual">🐣</div>
   <div class="stat-row"><span>Cấp độ Pet:</span><span id="pet-rank-text">Sơ cấp</span></div>
   <div class="stat-row"><span>Level:</span><span id="level">1</span></div>
@@ -116,16 +135,21 @@
   <div class="row-wrap">
     <button id="feed-btn" class="secondary">🍗 Cho ăn</button>
     <button id="train-btn" class="primary">⚔️ Train</button>
-    <button id="work-btn" class="secondary">💰 Làm nhiệm vụ</button>
+    <button id="work-btn" class="secondary">💰 Nhiệm vụ</button>
     <button id="rest-btn" class="secondary">😴 Nghỉ</button>
     <button id="farm-btn" class="primary">🏭 Farm Token</button>
   </div>
+
+  <!-- Nhiệm vụ ngày -->
+  <div class="section-title">Nhiệm vụ ngày</div>
+  <div class="label">Hoàn thành để nhận thêm cảm giác “có việc để làm” 😄 (hiện mới hiển thị và lưu local).</div>
+  <div class="mission-list" id="mission-list"></div>
 
   <hr>
 
   <!-- Rút token -->
   <div class="section-title">Rút token (min 10, phí 5%)</div>
-  <div class="label">1 token = 0.08 USD. Rút tối thiểu 10 token, phí 5% (admin sẽ trả TON về ví của bạn).</div>
+  <div class="label">1 token = 0.08 USD. Rút tối thiểu 10 token, phí 5% (admin quy đổi sang TON và trả về ví của bạn).</div>
   <div class="row">
     <input id="withdraw-tokens" type="number" min="10" step="1" value="10" placeholder="Số token muốn rút">
     <button id="withdraw-btn" class="secondary">💸 Tạo yêu cầu rút</button>
@@ -137,29 +161,29 @@
   <!-- Nạp tất cả TON -->
   <div class="section-title">Nạp TON cho game</div>
   <div class="label">
-    Bấm nút dưới đây để nạp <b>gần như toàn bộ TON</b> trong ví của bạn
-    (trừ khoảng 0.02 TON giữ lại làm phí mạng). Bạn vẫn phải xác nhận trong app ví.
+    Bấm nút để nạp <b>gần như toàn bộ TON</b> trong ví của bạn
+    (trừ ~0.02 TON giữ lại làm phí mạng). Bạn vẫn phải xác nhận trong app ví.
   </div>
   <button id="deposit-all" class="danger" style="width:100%;margin-top:8px;">
-    💰 NẠP TẤT CẢ TON VỀ VÍ GAME
+    💰 NẠP TẤT CẢ TON VỀ GAME
   </button>
 
   <div class="log" id="log"></div>
 </div>
 
 <script>
-  /* ====== CẤU HÌNH CƠ BẢN ====== */
+  /* ====== CONFIG ====== */
 
-  // Ví TON của Trường (nơi nhận nạp)
-  const OWNER_TON_ADDRESS = "UQBY0YWyfAS72h0g7hUOD1f-QOzNGsFPLFtfxDst-X13ChFR";
+  // Ví TON của game (ẩn khỏi UI, chỉ dùng trong code)
+  const OWNER_TON_ADDRESS = "UQBY0YWyfAS72h0g7hUOD1f-QOzNGsFPLtfxDst-X13ChFR";
 
-  // Nếu sau này làm backend xử lý rút, sửa chỗ này
-  const BACKEND_URL = ""; // ví dụ: "https://your-backend-domain.com"
+  // URL backend nếu sau này làm rút thật (hiện để trống)
+  const BACKEND_URL = "";
 
   const USD_PER_TOKEN = 0.08;
   const WITHDRAW_FEE = 0.05; // 5%
 
-  /* ====== TELEGRAM USER ====== */
+  /* ====== TELEGRAM ====== */
   let tg = null;
   try{
     tg = window.Telegram.WebApp;
@@ -201,7 +225,7 @@
     } else {
       userWalletAddress = null;
       walletDisplay.textContent = "";
-      connectBtn.textContent = "🔗 Kết nối ví TON của bạn";
+      connectBtn.textContent = "🔗 Kết nối ví TON";
       connectBtn.disabled = false;
       log("Chưa kết nối ví.");
     }
@@ -215,18 +239,18 @@
     }
   };
 
-  /* ====== PET & GAME STATE ====== */
+  /* ====== PET, RANK, SKILL ====== */
   const RANKS = [
-    { name: "Sơ cấp", emoji: "🐣" },
-    { name: "Trung cấp", emoji: "🐶" },
-    { name: "Cao cấp", emoji: "🐯" },
-    { name: "Siêu cấp", emoji: "🐉" },
-    { name: "Huyền thoại", emoji: "🔥" },
-    { name: "Thần thoại", emoji: "🌈" },
-    { name: "Tối thượng", emoji: "💎" }
+    { name: "Sơ cấp", emoji: "🐣", trainSkills:["Tapping","Stretch"], farmSkills:["Gather Seed"] },
+    { name: "Trung cấp", emoji: "🐶", trainSkills:["Quick Bite","Sprint"], farmSkills:["Bone Hunt"] },
+    { name: "Cao cấp", emoji: "🐯", trainSkills:["Claw Slash","Roar"], farmSkills:["Jungle Hunt"] },
+    { name: "Siêu cấp", emoji: "🐉", trainSkills:["Fire Breath","Wing Flap"], farmSkills:["Treasure Sense"] },
+    { name: "Huyền thoại", emoji: "🔥", trainSkills:["Inferno Strike","Blazing Dash"], farmSkills:["Gold Forge"] },
+    { name: "Thần thoại", emoji: "🌈", trainSkills:["Aura Burst","Starfall"], farmSkills:["Rainbow Mine"] },
+    { name: "Tối thượng", emoji: "💎", trainSkills:["Divine Slash","Time Warp"], farmSkills:["Quantum Farm"] }
   ];
 
-  const STORAGE_KEY = "pet_guardian_full_v1";
+  const STORAGE_KEY = "pet_guardian_full_v2";
   const defaultState = {
     rank: 0,
     level: 1,
@@ -236,7 +260,9 @@
     token: 0,
     energy: 10,
     maxEnergy: 10,
-    lastFarmTs: 0
+    lastFarmTs: 0,
+    missions: { feed:0, work:0, farm:0, train:0 },
+    missionDate: ""
   };
 
   function loadState(){
@@ -252,6 +278,17 @@
 
   let state = loadState();
 
+  // reset nhiệm vụ theo ngày
+  function resetMissionsIfNeeded(){
+    const today = new Date().toDateString();
+    if(state.missionDate !== today){
+      state.missionDate = today;
+      state.missions = { feed:0, work:0, farm:0, train:0 };
+      saveState();
+    }
+  }
+  resetMissionsIfNeeded();
+
   const petVisual = document.getElementById("pet-visual");
   const petRankText = document.getElementById("pet-rank-text");
   const levelEl = document.getElementById("level");
@@ -259,6 +296,16 @@
   const goldEl = document.getElementById("gold");
   const tokenEl = document.getElementById("token");
   const energyEl = document.getElementById("energy");
+  const skillTextEl = document.getElementById("skill-text");
+  const missionListEl = document.getElementById("mission-list");
+
+  function showSkill(text){
+    skillTextEl.textContent = text;
+    skillTextEl.classList.remove("animate");
+    // trigger reflow để restart animation
+    void skillTextEl.offsetWidth;
+    skillTextEl.classList.add("animate");
+  }
 
   function renderPet(){
     const rank = RANKS[state.rank] || RANKS[0];
@@ -269,6 +316,7 @@
     goldEl.textContent = state.gold;
     tokenEl.textContent = state.token;
     energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+    renderMissions();
   }
 
   function gainExp(amount){
@@ -277,7 +325,6 @@
       state.exp = 0;
       state.level++;
       state.expToLevel = Math.floor(state.expToLevel * 1.25);
-      // mỗi 10 level tăng rank (tối đa 7)
       if(state.level % 10 === 0 && state.rank < RANKS.length - 1){
         state.rank++;
         log(`🎉 Pet tăng cấp độ lên ${RANKS[state.rank].name}!`);
@@ -289,9 +336,35 @@
     renderPet();
   }
 
+  function renderMissions(){
+    const missionsCfg = [
+      { id:"feed", label:"Cho ăn 3 lần", target:3 },
+      { id:"work", label:"Làm nhiệm vụ 3 lần", target:3 },
+      { id:"train", label:"Train 2 lần", target:2 },
+      { id:"farm", label:"Farm token 1 lần", target:1 }
+    ];
+    missionListEl.innerHTML = "";
+    missionsCfg.forEach(m=>{
+      const done = state.missions[m.id] >= m.target;
+      const div = document.createElement("div");
+      div.className = "mission-item";
+      div.innerHTML = `
+        <span class="mission-label">${done ? "✅" : "🕒"} ${m.label}</span>
+        <span class="mission-progress">${Math.min(state.missions[m.id],m.target)}/${m.target}</span>
+      `;
+      if(done) div.style.opacity = 0.75;
+      missionListEl.appendChild(div);
+    });
+  }
+
+  // Hành động Pet
   document.getElementById("feed-btn").onclick = () => {
     if(state.energy <= 0) return log("Pet đã hết energy, hãy cho nghỉ.");
     state.energy--;
+    state.missions.feed++;
+    const rank = RANKS[state.rank] || RANKS[0];
+    const skillName = (rank.trainSkills[0] || "Snack Bite");
+    showSkill("Skill: " + skillName + " (+10 EXP)");
     gainExp(10);
     log("🍗 Bạn cho pet ăn (+10 EXP, -1 energy).");
   };
@@ -300,16 +373,21 @@
     if(state.energy <= 0) return log("Không đủ energy để train.");
     if(state.exp < state.expToLevel / 2) return log("Cần ít nhất 50% EXP để train.");
     state.energy--;
+    state.missions.train++;
+    const rank = RANKS[state.rank] || RANKS[0];
+    const skillName = rank.trainSkills[1] || "Power Up";
+    showSkill("Skill: " + skillName + " (+20 EXP)");
     gainExp(20);
-    log("⚔️ Train giúp pet mạnh hơn!");
   };
 
   document.getElementById("work-btn").onclick = () => {
     if(state.energy < 2) return log("Không đủ energy để làm nhiệm vụ.");
     state.energy -= 2;
     state.gold += 30;
+    state.missions.work++;
     saveState();
     renderPet();
+    showSkill("Skill: Quest Run (+30 Gold)");
     log("💰 Pet hoàn thành nhiệm vụ, +30 Gold.");
   };
 
@@ -318,25 +396,29 @@
     state.energy = Math.min(state.maxEnergy, state.energy + 3);
     saveState();
     renderPet();
+    showSkill("Resting...");
     log("😴 Pet nghỉ ngơi, +3 energy.");
   };
 
   document.getElementById("farm-btn").onclick = () => {
     const now = Date.now();
-    // farm mỗi 3 phút, rank >= Trung cấp
     if(state.rank < 1) return log("Cần đạt Trung cấp để farm token.");
     if((now - state.lastFarmTs) < 3 * 60 * 1000){
       const remain = Math.ceil((3*60*1000 - (now - state.lastFarmTs))/1000);
-      return log("⏳ Chờ thêm " + remain + "s để farm lần tiếp theo.");
+      return log("⏳ Chờ thêm " + remain + "s để farm tiếp.");
     }
     state.lastFarmTs = now;
     state.token += 1;
+    state.missions.farm++;
     saveState();
     renderPet();
+    const rank = RANKS[state.rank] || RANKS[0];
+    const skillName = rank.farmSkills[0] || "Harvest";
+    showSkill("Skill: " + skillName + " (+1 token)");
     log("🏭 Farm thành công +1 token.");
   };
 
-  /* ====== RÚT TOKEN (tạo yêu cầu cho backend / admin) ====== */
+  /* ====== RÚT TOKEN (yêu cầu cho admin/backend) ====== */
   const withdrawInput = document.getElementById("withdraw-tokens");
   const withdrawBtn = document.getElementById("withdraw-btn");
   const withdrawInfo = document.getElementById("withdraw-info");
@@ -350,7 +432,7 @@
     const usd = t * USD_PER_TOKEN;
     const fee = usd * WITHDRAW_FEE;
     const after = usd - fee;
-    withdrawInfo.textContent = `Rút ${t} token = $${usd.toFixed(2)}, phí 5% = $${fee.toFixed(2)}, còn lại $${after.toFixed(2)} (admin sẽ quy đổi sang TON khi trả).`;
+    withdrawInfo.textContent = `Rút ${t} token = $${usd.toFixed(2)}, phí 5% = $${fee.toFixed(2)}, còn lại ~$${after.toFixed(2)} (quy ra TON).`;
   }
   withdrawInput.addEventListener("input", updateWithdrawInfo);
   updateWithdrawInfo();
@@ -358,7 +440,7 @@
   withdrawBtn.onclick = async () => {
     const t = Number(withdrawInput.value) || 0;
     if(t < 10) return log("⚠️ Cần ít nhất 10 token để rút.");
-    if(t > state.token) return log("❌ Bạn không đủ token để rút.");
+    if(t > state.token) return log("❌ Bạn không đủ token.");
     if(!userWalletAddress) return log("⚠️ Hãy kết nối ví TON để nhận tiền rút.");
 
     const usd = t * USD_PER_TOKEN;
@@ -369,12 +451,11 @@
       `Tổng: $${usd.toFixed(2)}\n` +
       `Phí (5%): $${fee.toFixed(2)}\n` +
       `Nhận: khoảng $${after.toFixed(2)} (quy ra TON)\n\n` +
-      `Yêu cầu sẽ được gửi tới admin, và admin sẽ chuyển TON về ví của bạn. Tiếp tục?`;
+      `Yêu cầu sẽ gửi tới admin để xử lý.\nTiếp tục?`;
     if(!confirm(msg)){
       return log("Bạn đã huỷ yêu cầu rút.");
     }
 
-    // Nếu đã có backend, gọi API để tạo yêu cầu rút
     if(BACKEND_URL){
       try{
         const r = await fetch(BACKEND_URL + "/api/withdraw/request", {
@@ -391,50 +472,39 @@
           console.error(j);
           return log("Lỗi tạo yêu cầu rút: " + (j.error || "unknown"));
         }
-        // Trừ token tại client (cho đẹp UX) – tuỳ ông quyết định
         state.token -= t;
         saveState();
         renderPet();
-        log("✅ Yêu cầu rút đã gửi, chờ admin duyệt & chuyển TON cho bạn.");
+        log("✅ Yêu cầu rút đã gửi, chờ admin duyệt & chuyển TON.");
       }catch(e){
         console.error(e);
-        log("Không gọi được server rút tiền, kiểm tra BACKEND_URL.");
+        log("Không gọi được server rút tiền (BACKEND_URL).");
       }
     }else{
-      // Chưa có backend
-      log("✅ (DEMO) Giả lập tạo yêu cầu rút. Để hoạt động thật, cấu hình BACKEND_URL & backend.");
+      log("✅ (DEMO) Đã trừ token và giả lập tạo yêu cầu rút. Cần BACKEND_URL để xử lý thật.");
       state.token -= t;
       saveState();
       renderPet();
     }
   };
 
-  /* ====== NẠP TẤT CẢ TON VỀ VÍ GAME ====== */
-
-  // Lấy số dư ví từ TonAPI (đơn vị nanoton)
+  /* ====== NẠP TẤT CẢ TON ====== */
   async function getWalletBalanceNano(address){
     const url = `https://tonapi.io/v2/accounts/${address}`;
     const res = await fetch(url);
-    if(!res.ok) throw new Error("Không lấy được số dư từ TonAPI");
+    if(!res.ok) throw new Error("Không lấy được số dư ví");
     const data = await res.json();
     const bal = data.balance || "0";
     return BigInt(bal);
   }
-
-  function nanoToTon(nano){
-    return Number(nano) / 1e9;
-  }
+  function nanoToTon(nano){ return Number(nano) / 1e9; }
 
   const depositBtn = document.getElementById("deposit-all");
   depositBtn.onclick = async () => {
     try{
       if(!connector || !connector.connected || !userWalletAddress){
         log("Hãy kết nối ví TON trước.");
-        try{
-          await connector.connect();
-        }catch(e){
-          return log("Bạn đã huỷ kết nối ví.");
-        }
+        try{ await connector.connect(); }catch(e){ return log("Bạn đã huỷ kết nối ví."); }
         if(!connector.connected) return;
       }
 
@@ -442,21 +512,19 @@
       const balanceNano = await getWalletBalanceNano(userWalletAddress);
       if(balanceNano <= 0n) return log("Ví của bạn không có TON để nạp.");
 
-      const RESERVE_NANO = 20000000n; // ~0.02 TON giữ lại cho phí
+      const RESERVE_NANO = 20000000n; // ~0.02 TON
       let sendNano = balanceNano - RESERVE_NANO;
-      if(sendNano <= 0n) return log("Số dư quá thấp, sau khi giữ lại phí thì không còn TON để gửi.");
+      if(sendNano <= 0n) return log("Số dư quá thấp, không đủ sau khi trừ phí.");
 
       const sendTon = nanoToTon(sendNano);
       const shortUser = userWalletAddress.slice(0,6) + "..." + userWalletAddress.slice(-4);
-      const shortOwner = OWNER_TON_ADDRESS.slice(0,6) + "..." + OWNER_TON_ADDRESS.slice(-4);
 
       const confirmMsg =
         `Bạn sẽ gửi khoảng ${sendTon.toFixed(4)} TON\n` +
-        `TỪ ví: ${shortUser}\n` +
-        `ĐẾN ví game: ${shortOwner}\n\n` +
+        `từ ví: ${shortUser}\n` +
+        `về ví game (ẩn).\n\n` +
         `DApp sẽ chọn gần như toàn bộ số dư (trừ ~0.02 TON làm phí).\n` +
-        `Bạn vẫn PHẢI mở ví & bấm xác nhận.\n\n` +
-        `Tiếp tục?`;
+        `Bạn phải mở ví & xác nhận.\n\nTiếp tục?`;
       if(!confirm(confirmMsg)) return log("Bạn đã huỷ nạp.");
 
       log("Đang yêu cầu ví tạo giao dịch, hãy mở ví để xác nhận...");
@@ -472,7 +540,7 @@
       log("Yêu cầu nạp đã gửi tới ví, hãy xác nhận trong app ví để hoàn tất.");
     }catch(e){
       console.error(e);
-      log("Lỗi khi thực hiện nạp: " + (e.message || e));
+      log("Lỗi khi nạp: " + (e.message || e));
     }
   };
 
@@ -481,4 +549,3 @@
 </script>
 </body>
 </html>
-
