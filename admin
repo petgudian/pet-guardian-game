@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Pet Guardian Admin</title>
+  <style>
+    body{
+      font-family:system-ui,sans-serif;
+      background:#020617;
+      color:#e5e7eb;
+      margin:0;
+      padding:16px;
+    }
+    h1{margin-top:0;}
+    input,button{
+      font-family:inherit;
+      font-size:14px;
+      padding:6px 8px;
+      border-radius:6px;
+      border:1px solid #334155;
+      background:#020617;
+      color:#e5e7eb;
+    }
+    button{
+      background:#22c55e;
+      color:#052e16;
+      border:none;
+      cursor:pointer;
+    }
+    button.secondary{
+      background:#111827;
+      color:#e5e7eb;
+    }
+    .card{
+      max-width:900px;
+      margin:0 auto;
+      background:#0f172a;
+      border-radius:12px;
+      padding:16px;
+      box-shadow:0 15px 35px rgba(0,0,0,0.7);
+    }
+    .flex-row{display:flex;gap:8px;align-items:center;margin-top:6px;}
+    .section-title{margin-top:16px;font-weight:600;color:#facc15;}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;}
+    th,td{border:1px solid #1f2937;padding:4px 6px;text-align:left;}
+    th{background:#020617;}
+    .small{font-size:12px;color:#9ca3af;}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>Admin – Pet Guardian</h1>
+
+  <div id="login-box">
+    <div>Admin password:</div>
+    <div class="flex-row">
+      <input type="password" id="pw" placeholder="Nhập mật khẩu admin">
+      <button id="btn-login">Login</button>
+    </div>
+    <div class="small" id="login-msg"></div>
+  </div>
+
+  <div id="admin-main" style="display:none;">
+    <div class="section-title">Tìm người chơi</div>
+    <div class="flex-row">
+      <input id="search-q" placeholder="Nhập Telegram ID hoặc username...">
+      <button class="secondary" id="btn-search">Tìm</button>
+    </div>
+    <div class="small">Hoặc nhập chính xác Telegram ID vào ô dưới rồi bấm "Xem".</div>
+    <div class="flex-row">
+      <input id="player-id-input" placeholder="Telegram ID">
+      <button class="secondary" id="btn-load-player">Xem</button>
+    </div>
+
+    <div id="players-list"></div>
+
+    <div class="section-title">Thông tin người chơi</div>
+    <div id="player-info" class="small">Chưa chọn người chơi.</div>
+
+    <div id="balance-tools" style="display:none;">
+      <div class="section-title">Cộng / trừ Gold & Token</div>
+      <div class="flex-row">
+        <input id="add-gold" type="number" placeholder="+/- Gold">
+        <input id="add-token" type="number" placeholder="+/- Token">
+        <button id="btn-update-balance">Cập nhật</button>
+      </div>
+    </div>
+
+    <div class="section-title">Lệnh rút gần đây</div>
+    <div id="withdraw-table"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:4000"; // ĐỔI thành URL backend khi deploy
+
+let token = "";
+let currentPlayerTgId = null;
+
+const loginBox = document.getElementById("login-box");
+const adminMain = document.getElementById("admin-main");
+const loginMsg = document.getElementById("login-msg");
+
+document.getElementById("btn-login").onclick = async () => {
+  const pw = document.getElementById("pw").value;
+  try{
+    const res = await fetch(API_BASE + "/api/admin/login", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ password: pw })
+    });
+    const j = await res.json();
+    if(!res.ok){
+      loginMsg.textContent = "Sai mật khẩu.";
+      return;
+    }
+    token = j.token;
+    loginBox.style.display = "none";
+    adminMain.style.display = "block";
+  }catch(e){
+    loginMsg.textContent = "Không kết nối được server.";
+  }
+};
+
+// list players
+document.getElementById("btn-search").onclick = async () => {
+  const q = document.getElementById("search-q").value;
+  const box = document.getElementById("players-list");
+  box.innerHTML = "Đang tải...";
+  try{
+    const res = await fetch(API_BASE + "/api/admin/players?q=" + encodeURIComponent(q || ""), {
+      headers:{ Authorization:"Bearer "+token }
+    });
+    const arr = await res.json();
+    if(!res.ok){ box.innerHTML = "Lỗi tải danh sách"; return; }
+
+    if(arr.length === 0){
+      box.innerHTML = "<div class='small'>Không tìm thấy người chơi.</div>";
+      return;
+    }
+    let html = "<table><thead><tr><th>TG ID</th><th>Username</th><th>Rank</th><th>Lv</th><th>Gold</th><th>Token</th><th>Energy</th><th></th></tr></thead><tbody>";
+    arr.forEach(p=>{
+      html += `<tr>
+        <td>${p.tg_id}</td>
+        <td>${p.username||""}</td>
+        <td>${p.rank}</td>
+        <td>${p.level}</td>
+        <td>${p.gold}</td>
+        <td>${p.token}</td>
+        <td>${p.energy}</td>
+        <td><button class="secondary" onclick="loadPlayer('${p.tg_id}')">Xem</button></td>
+      </tr>`;
+    });
+    html += "</tbody></table>";
+    box.innerHTML = html;
+  }catch(e){
+    box.innerHTML = "Lỗi kết nối.";
+  }
+};
+
+document.getElementById("btn-load-player").onclick = () => {
+  const id = document.getElementById("player-id-input").value.trim();
+  if(id){ loadPlayer(id); }
+};
+
+async function loadPlayer(tg_id){
+  currentPlayerTgId = tg_id;
+  document.getElementById("player-id-input").value = tg_id;
+  const infoBox = document.getElementById("player-info");
+  const wdBox = document.getElementById("withdraw-table");
+  infoBox.textContent = "Đang tải...";
+  wdBox.innerHTML = "";
+  try{
+    const res = await fetch(API_BASE + "/api/admin/player/" + encodeURIComponent(tg_id), {
+      headers:{ Authorization:"Bearer "+token }
+    });
+    const j = await res.json();
+    if(!res.ok){
+      infoBox.textContent = "Không tìm thấy người chơi.";
+      document.getElementById("balance-tools").style.display = "none";
+      return;
+    }
+    const p = j.player;
+    infoBox.innerHTML = `
+      <div>TG ID: <b>${p.tg_id}</b></div>
+      <div>Username: <b>${p.username||""}</b></div>
+      <div>Rank: ${p.rank} | Level: ${p.level}</div>
+      <div>Gold: ${p.gold} | Token: ${p.token} | Energy: ${p.energy}</div>
+      <div class="small">Last seen: ${p.last_seen}</div>
+    `;
+    document.getElementById("balance-tools").style.display = "block";
+
+    const wds = j.withdraws || [];
+    if(wds.length === 0){
+      wdBox.innerHTML = "<div class='small'>Chưa có lệnh rút.</div>";
+    }else{
+      let html = "<table><thead><tr><th>ID</th><th>Tokens</th><th>Status</th><th>Note</th><th>Time</th><th>Đổi trạng thái</th></tr></thead><tbody>";
+      wds.forEach(w=>{
+        html += `<tr>
+          <td>${w.id}</td>
+          <td>${w.tokens}</td>
+          <td>${w.status}</td>
+          <td>${w.admin_note||""}</td>
+          <td>${w.created_at}</td>
+          <td>
+            <select id="wd-status-${w.id}">
+              <option value="pending" ${w.status==='pending'?'selected':''}>pending</option>
+              <option value="approved" ${w.status==='approved'?'selected':''}>approved</option>
+              <option value="rejected" ${w.status==='rejected'?'selected':''}>rejected</option>
+              <option value="done" ${w.status==='done'?'selected':''}>done</option>
+            </select>
+            <button class="secondary" onclick="updateWithdraw(${w.id})">OK</button>
+          </td>
+        </tr>`;
+      });
+      html += "</tbody></table>";
+      wdBox.innerHTML = html;
+    }
+  }catch(e){
+    infoBox.textContent = "Lỗi kết nối.";
+  }
+}
+
+// cập nhật balance
+document.getElementById("btn-update-balance").onclick = async () => {
+  if(!currentPlayerTgId) return;
+  const addGold = Number(document.getElementById("add-gold").value||0);
+  const addToken = Number(document.getElementById("add-token").value||0);
+  try{
+    const res = await fetch(API_BASE + "/api/admin/player/update-balance", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:"Bearer "+token
+      },
+      body:JSON.stringify({
+        tg_id: currentPlayerTgId,
+        addGold,
+        addToken
+      })
+    });
+    const j = await res.json();
+    if(!res.ok){ alert("Lỗi cập nhật"); return; }
+    alert("Đã cập nhật số dư.");
+    loadPlayer(currentPlayerTgId);
+  }catch(e){
+    alert("Lỗi kết nối.");
+  }
+};
+
+async function updateWithdraw(id){
+  const select = document.getElementById("wd-status-"+id);
+  const status = select.value;
+  const note = prompt("Ghi chú cho lệnh rút #" + id + " (có thể để trống):") || "";
+  try{
+    const res = await fetch(API_BASE + "/api/admin/withdraws/" + id + "/status", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:"Bearer "+token
+      },
+      body:JSON.stringify({ status, note })
+    });
+    if(!res.ok){ alert("Lỗi đổi trạng thái."); return; }
+    alert("Đã cập nhật trạng thái.");
+    if(currentPlayerTgId) loadPlayer(currentPlayerTgId);
+  }catch(e){
+    alert("Lỗi kết nối.");
+  }
+}
+
+// để dùng trong onclick
+window.loadPlayer = loadPlayer;
+window.updateWithdraw = updateWithdraw;
+</script>
+</body>
+</html>
